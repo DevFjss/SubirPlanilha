@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Envio Múltiplo - PNAE, FAED e Manutenção</title>
+  <title>Sistema de Envio Múltiplo - Cartão Manut, Prestação Contas e Sistema Escolar</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     * {
@@ -121,7 +121,7 @@
 
     .cards-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
       gap: 20px;
       margin-bottom: 20px;
     }
@@ -139,9 +139,9 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .card.pnae { border-top: 5px solid #27ae60; }
-    .card.faed { border-top: 5px solid #f39c12; }
-    .card.manut { border-top: 5px solid #e74c3c; }
+    .card.cartao { border-top: 5px solid #27ae60; }
+    .card.prestacao { border-top: 5px solid #f39c12; }
+    .card.sistema { border-top: 5px solid #e74c3c; }
 
     .card-header {
       display: flex;
@@ -206,6 +206,13 @@
       margin-bottom: 10px;
     }
 
+    .upload-section .btn-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     input[type="file"] {
       display: none;
     }
@@ -246,14 +253,31 @@
       box-shadow: none !important;
     }
 
-    .btn-enviar-individual.pnae { background: #27ae60; }
-    .btn-enviar-individual.pnae:hover:not(:disabled) { background: #229954; transform: translateY(-2px); }
+    .btn-enviar-individual.cartao { background: #27ae60; }
+    .btn-enviar-individual.cartao:hover:not(:disabled) { background: #229954; transform: translateY(-2px); }
     
-    .btn-enviar-individual.faed { background: #f39c12; }
-    .btn-enviar-individual.faed:hover:not(:disabled) { background: #d68910; transform: translateY(-2px); }
+    .btn-enviar-individual.prestacao { background: #f39c12; }
+    .btn-enviar-individual.prestacao:hover:not(:disabled) { background: #d68910; transform: translateY(-2px); }
     
-    .btn-enviar-individual.manut { background: #e74c3c; }
-    .btn-enviar-individual.manut:hover:not(:disabled) { background: #c0392b; transform: translateY(-2px); }
+    .btn-enviar-individual.sistema { background: #e74c3c; }
+    .btn-enviar-individual.sistema:hover:not(:disabled) { background: #c0392b; transform: translateY(-2px); }
+
+    .btn-limpar-individual {
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      background: #e74c3c;
+      color: white;
+      font-size: 12px;
+    }
+
+    .btn-limpar-individual:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
 
     .file-name {
       font-style: italic;
@@ -318,9 +342,9 @@
       font-size: 11px;
     }
 
-    th.pnae-header { background: #27ae60; }
-    th.faed-header { background: #f39c12; }
-    th.manut-header { background: #e74c3c; }
+    th.cartao-header { background: #27ae60; }
+    th.prestacao-header { background: #f39c12; }
+    th.sistema-header { background: #e74c3c; }
 
     tr:nth-child(even) { background: #f8f9fa; }
     tr:hover { background: #eef4fc; }
@@ -388,12 +412,6 @@
       color: #6c757d;
     }
 
-    .info-colunas-detalhe {
-      font-size: 11px;
-      color: #6c757d;
-      margin-left: 5px;
-    }
-
     @media (max-width: 768px) {
       .cards-container {
         grid-template-columns: 1fr;
@@ -414,8 +432,14 @@
         align-items: stretch;
       }
 
+      .upload-section .btn-group {
+        flex-direction: column;
+        width: 100%;
+      }
+
       .upload-section .btn-file,
-      .upload-section .btn-enviar-individual {
+      .upload-section .btn-enviar-individual,
+      .upload-section .btn-limpar-individual {
         width: 100%;
         text-align: center;
       }
@@ -451,80 +475,89 @@
 
   <!-- Cards -->
   <div class="cards-container">
-    <!-- CARD PNAE -->
-    <div class="card pnae" id="cardPnae">
+    <!-- CARD CARTÃO MANUTENÇÃO -->
+    <div class="card cartao" id="cardCartao">
       <div class="card-header">
         <h3>
-          <span class="status-indicator empty" id="indicatorPnae"></span>
-          📋 PNAE
-          <span class="badge">Linha 6</span>
-          <span class="info-colunas">B até K (10 colunas)</span>
-        </h3>
-        <span id="contadorPnae" class="contador">0 linhas</span>
-      </div>
-      <div class="upload-section">
-        <label for="filePnae" class="btn-file">📁 Selecionar</label>
-        <input type="file" id="filePnae" accept=".xlsx, .xlsm">
-        <span id="fileNamePnae" class="file-name">Nenhum arquivo</span>
-        <button id="btnEnviarPnae" class="btn-enviar-individual pnae" disabled>Enviar</button>
-      </div>
-      <div id="statusPnae" class="card-status info">Aguardando arquivo...</div>
-      <div class="table-container">
-        <table id="tablePnae">
-          <thead><tr id="headerPnae" class="pnae-header"></tr></thead>
-          <tbody id="bodyPnae"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CARD FAED -->
-    <div class="card faed" id="cardFaed">
-      <div class="card-header">
-        <h3>
-          <span class="status-indicator empty" id="indicatorFaed"></span>
-          📋 FAED
-          <span class="badge">Linha 6</span>
-          <span class="info-colunas">B até K (10 colunas)</span>
-        </h3>
-        <span id="contadorFaed" class="contador">0 linhas</span>
-      </div>
-      <div class="upload-section">
-        <label for="fileFaed" class="btn-file">📁 Selecionar</label>
-        <input type="file" id="fileFaed" accept=".xlsx, .xlsm">
-        <span id="fileNameFaed" class="file-name">Nenhum arquivo</span>
-        <button id="btnEnviarFaed" class="btn-enviar-individual faed" disabled>Enviar</button>
-      </div>
-      <div id="statusFaed" class="card-status info">Aguardando arquivo...</div>
-      <div class="table-container">
-        <table id="tableFaed">
-          <thead><tr id="headerFaed" class="faed-header"></tr></thead>
-          <tbody id="bodyFaed"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CARD MANUTENÇÃO -->
-    <div class="card manut" id="cardManut">
-      <div class="card-header">
-        <h3>
-          <span class="status-indicator empty" id="indicatorManut"></span>
-          🔧 Manutenção
+          <span class="status-indicator empty" id="indicatorCartao"></span>
+          💳 Cartão Manutenção
           <span class="badge">Linha 8</span>
-          <span class="info-colunas">B até L (11 colunas)</span>
+          <span class="info-colunas">B até R (17 colunas)</span>
         </h3>
-        <span id="contadorManut" class="contador">0 linhas</span>
+        <span id="contadorCartao" class="contador">0 linhas</span>
       </div>
       <div class="upload-section">
-        <label for="fileManut" class="btn-file">📁 Selecionar</label>
-        <input type="file" id="fileManut" accept=".xlsx, .xlsm">
-        <span id="fileNameManut" class="file-name">Nenhum arquivo</span>
-        <button id="btnEnviarManut" class="btn-enviar-individual manut" disabled>Enviar</button>
+        <label for="fileCartao" class="btn-file">📁 Selecionar</label>
+        <input type="file" id="fileCartao" accept=".xlsx, .xlsm">
+        <span id="fileNameCartao" class="file-name">Nenhum arquivo</span>
+        <div class="btn-group">
+          <button id="btnEnviarCartao" class="btn-enviar-individual cartao" disabled>Enviar</button>
+          <button id="btnLimparCartao" class="btn-limpar-individual">🗑️ Limpar</button>
+        </div>
       </div>
-      <div id="statusManut" class="card-status info">Aguardando arquivo...</div>
+      <div id="statusCartao" class="card-status info">Aguardando arquivo...</div>
       <div class="table-container">
-        <table id="tableManut">
-          <thead><tr id="headerManut" class="manut-header"></tr></thead>
-          <tbody id="bodyManut"></tbody>
+        <table id="tableCartao">
+          <thead><tr id="headerCartao" class="cartao-header"></tr></thead>
+          <tbody id="bodyCartao"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD PRESTAÇÃO DE CONTAS -->
+    <div class="card prestacao" id="cardPrestacao">
+      <div class="card-header">
+        <h3>
+          <span class="status-indicator empty" id="indicatorPrestacao"></span>
+          📋 Prestação de Contas
+          <span class="badge">Linha 3</span>
+          <span class="info-colunas">B até J (9 colunas)</span>
+        </h3>
+        <span id="contadorPrestacao" class="contador">0 linhas</span>
+      </div>
+      <div class="upload-section">
+        <label for="filePrestacao" class="btn-file">📁 Selecionar</label>
+        <input type="file" id="filePrestacao" accept=".xlsx, .xlsm">
+        <span id="fileNamePrestacao" class="file-name">Nenhum arquivo</span>
+        <div class="btn-group">
+          <button id="btnEnviarPrestacao" class="btn-enviar-individual prestacao" disabled>Enviar</button>
+          <button id="btnLimparPrestacao" class="btn-limpar-individual">🗑️ Limpar</button>
+        </div>
+      </div>
+      <div id="statusPrestacao" class="card-status info">Aguardando arquivo...</div>
+      <div class="table-container">
+        <table id="tablePrestacao">
+          <thead><tr id="headerPrestacao" class="prestacao-header"></tr></thead>
+          <tbody id="bodyPrestacao"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD SISTEMA ESCOLAR -->
+    <div class="card sistema" id="cardSistema">
+      <div class="card-header">
+        <h3>
+          <span class="status-indicator empty" id="indicatorSistema"></span>
+          🏫 Sistema Escolar
+          <span class="badge">Linha 3</span>
+          <span class="info-colunas">A até H (8 colunas)</span>
+        </h3>
+        <span id="contadorSistema" class="contador">0 linhas</span>
+      </div>
+      <div class="upload-section">
+        <label for="fileSistema" class="btn-file">📁 Selecionar</label>
+        <input type="file" id="fileSistema" accept=".xlsx, .xlsm">
+        <span id="fileNameSistema" class="file-name">Nenhum arquivo</span>
+        <div class="btn-group">
+          <button id="btnEnviarSistema" class="btn-enviar-individual sistema" disabled>Enviar</button>
+          <button id="btnLimparSistema" class="btn-limpar-individual">🗑️ Limpar</button>
+        </div>
+      </div>
+      <div id="statusSistema" class="card-status info">Aguardando arquivo...</div>
+      <div class="table-container">
+        <table id="tableSistema">
+          <thead><tr id="headerSistema" class="sistema-header"></tr></thead>
+          <tbody id="bodySistema"></tbody>
         </table>
       </div>
     </div>
@@ -533,105 +566,121 @@
   <div class="footer-info">
     <span>📌 Selecione os 3 arquivos e clique em "Enviar Todos"</span>
     <span>
-      <span class="info-linha">PNAE: Linha 6 | B-K</span>
-      <span class="info-linha">FAED: Linha 6 | B-K</span>
-      <span class="info-linha">Manutenção: Linha 8 | B-L</span>
+      <span class="info-linha">Cartão Manutenção: Linha 8 | B-R → base_cartao_manutencao (A3)</span>
+      <span class="info-linha">Prestação Contas: Linha 3 | B-J → Prestacao_Contas (A3)</span>
+      <span class="info-linha">Sistema Escolar: Linha 3 | A-H → Sistema_Escolar (A3)</span>
     </span>
   </div>
 </div>
 
 <script>
   // ==================== CONFIGURAÇÃO ====================
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyttSDUaKcrQ7N85XmM5SFYvjGAR2Q_epaYplVEizadltGggBlz2urFEpopMcvYuTgvJQ/exec";
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9H_hk80Nv0l7GBso2VGT7yhEqcW2HBrquylr1mL0pyNsLscgM9oELo-PyJ2HYz5ub/exec";
 
-  // Cabeçalhos padrão
-  const CABECALHOS_PADRAO = [
+  // Cabeçalhos para cada tipo
+  const CABECALHOS_CARTAO = [
     "NTE", "MUNICÍPIO", "COD_SEC", "CENTRO DE CUSTO", "COD_INEP",
     "NOME DA UNIDADE ESCOLAR", "TIPO ESCOLA", "DIRETOR(A)",
-    "ID CT CUSTO", "Nº DO CARTÃO"
+    "ID CT CUSTO", "Nº DO CARTÃO", "VALOR_ALIMENTACAO", "VALOR_MANUTENCAO",
+    "DATA_VENCIMENTO_ALIMENTACAO", "DATA_VENCIMENTO_MANUTENCAO",
+    "SALDO_ALIMENTACAO", "SALDO_MANUTENCAO", "STATUS"
   ];
 
-  // Cabeçalhos da Manutenção (11 colunas)
-  const CABECALHOS_MANUT = [
-    "NTE", "MUNICÍPIO", "COD_SEC", "CENTRO DE CUSTO", "COD_INEP",
-    "NOME DA UNIDADE ESCOLAR", "TIPO ESCOLA", "DIRETOR(A)",
-    "ID CT CUSTO", "Nº DO CARTÃO", "CPF"
+  const CABECALHOS_PRESTACAO = [
+    "MUNICÍPIO", "COD_INEP", "NOME DA UNIDADE ESCOLAR",
+    "TIPO ESCOLA", "DIRETOR(A)", "Nº DO CARTÃO",
+    "MÊS", "VALOR", "STATUS"
+  ];
+
+  const CABECALHOS_SISTEMA = [
+    "MUNICÍPIO", "COD_INEP", "NOME DA UNIDADE ESCOLAR",
+    "TIPO ESCOLA", "DIRETOR(A)", "Nº DO CARTÃO",
+    "SISTEMA", "STATUS"
   ];
 
   const CONFIGURACOES = {
-    pnae: {
-      nomeAba: "Base Pnae",
-      linhaInicio: 5,        // Linha 6
-      colunas: { inicio: 1, fim: 11 }, // B até K (10 colunas)
-      cabecalhos: CABECALHOS_PADRAO,
-      elementos: {
-        fileInput: 'filePnae',
-        fileName: 'fileNamePnae',
-        contador: 'contadorPnae',
-        status: 'statusPnae',
-        btnEnviar: 'btnEnviarPnae',
-        header: 'headerPnae',
-        body: 'bodyPnae',
-        table: 'tablePnae',
-        indicator: 'indicatorPnae',
-        card: 'cardPnae'
-      },
-      classeHeader: 'pnae-header',
-      cor: 'pnae'
-    },
-    faed: {
-      nomeAba: "Base Faed",
-      linhaInicio: 5,        // Linha 6
-      colunas: { inicio: 1, fim: 11 }, // B até K (10 colunas)
-      cabecalhos: CABECALHOS_PADRAO,
-      elementos: {
-        fileInput: 'fileFaed',
-        fileName: 'fileNameFaed',
-        contador: 'contadorFaed',
-        status: 'statusFaed',
-        btnEnviar: 'btnEnviarFaed',
-        header: 'headerFaed',
-        body: 'bodyFaed',
-        table: 'tableFaed',
-        indicator: 'indicatorFaed',
-        card: 'cardFaed'
-      },
-      classeHeader: 'faed-header',
-      cor: 'faed'
-    },
-    manut: {
-      nomeAba: "Base Manut",
+    cartao: {
+      nomeAba: "CONTROLE CARTAO MANUTENCAO 2026",
       linhaInicio: 7,        // Linha 8
-      colunas: { inicio: 1, fim: 12 }, // B até L (11 colunas)
-      cabecalhos: CABECALHOS_MANUT,
+      colunas: { inicio: 1, fim: 18 }, // B até R (17 colunas)
+      cabecalhos: CABECALHOS_CARTAO,
+      destino: "base_cartao_manutencao",
+      linhaDestino: 3,       // Começa na linha 3 (A3)
       elementos: {
-        fileInput: 'fileManut',
-        fileName: 'fileNameManut',
-        contador: 'contadorManut',
-        status: 'statusManut',
-        btnEnviar: 'btnEnviarManut',
-        header: 'headerManut',
-        body: 'bodyManut',
-        table: 'tableManut',
-        indicator: 'indicatorManut',
-        card: 'cardManut'
+        fileInput: 'fileCartao',
+        fileName: 'fileNameCartao',
+        contador: 'contadorCartao',
+        status: 'statusCartao',
+        btnEnviar: 'btnEnviarCartao',
+        btnLimpar: 'btnLimparCartao',
+        header: 'headerCartao',
+        body: 'bodyCartao',
+        table: 'tableCartao',
+        indicator: 'indicatorCartao',
+        card: 'cardCartao'
       },
-      classeHeader: 'manut-header',
-      cor: 'manut'
+      classeHeader: 'cartao-header',
+      cor: 'cartao'
+    },
+    prestacao: {
+      nomeAba: "Plan atualizada aptas e desativ",
+      linhaInicio: 2,        // Linha 3
+      colunas: { inicio: 1, fim: 10 }, // B até J (9 colunas)
+      cabecalhos: CABECALHOS_PRESTACAO,
+      destino: "Prestacao_Contas",
+      linhaDestino: 3,       // Começa na linha 3 (A3)
+      elementos: {
+        fileInput: 'filePrestacao',
+        fileName: 'fileNamePrestacao',
+        contador: 'contadorPrestacao',
+        status: 'statusPrestacao',
+        btnEnviar: 'btnEnviarPrestacao',
+        btnLimpar: 'btnLimparPrestacao',
+        header: 'headerPrestacao',
+        body: 'bodyPrestacao',
+        table: 'tablePrestacao',
+        indicator: 'indicatorPrestacao',
+        card: 'cardPrestacao'
+      },
+      classeHeader: 'prestacao-header',
+      cor: 'prestacao'
+    },
+    sistema: {
+      nomeAba: "Consultar Sistema Escolar",
+      linhaInicio: 2,        // Linha 3
+      colunas: { inicio: 0, fim: 8 }, // A até H (8 colunas)
+      cabecalhos: CABECALHOS_SISTEMA,
+      destino: "Sistema_Escolar",
+      linhaDestino: 3,       // Começa na linha 3 (A3)
+      elementos: {
+        fileInput: 'fileSistema',
+        fileName: 'fileNameSistema',
+        contador: 'contadorSistema',
+        status: 'statusSistema',
+        btnEnviar: 'btnEnviarSistema',
+        btnLimpar: 'btnLimparSistema',
+        header: 'headerSistema',
+        body: 'bodySistema',
+        table: 'tableSistema',
+        indicator: 'indicatorSistema',
+        card: 'cardSistema'
+      },
+      classeHeader: 'sistema-header',
+      cor: 'sistema'
     }
   };
 
   // Armazenamento dos dados
   let payloads = {
-    pnae: null,
-    faed: null,
-    manut: null
+    cartao: null,
+    prestacao: null,
+    sistema: null
   };
 
   let statusEnvio = {
-    pnae: false,
-    faed: false,
-    manut: false
+    cartao: false,
+    prestacao: false,
+    sistema: false
   };
 
   // ==================== FUNÇÕES ====================
@@ -700,6 +749,22 @@
     updateIndicator(elementos.indicator, 'empty');
   }
 
+  function limparIndividual(chave) {
+    const config = CONFIGURACOES[chave];
+    const elementos = config.elementos;
+
+    payloads[chave] = null;
+    statusEnvio[chave] = false;
+
+    document.getElementById(elementos.fileName).innerText = 'Nenhum arquivo';
+    document.getElementById(elementos.fileInput).value = '';
+    limparTabela(config);
+    setStatusCard(elementos.status, 'Aguardando arquivo...', 'info');
+    document.getElementById(elementos.btnEnviar).disabled = true;
+
+    verificarTodosCarregados();
+  }
+
   function processarArquivo(file, config, chave) {
     const elementos = config.elementos;
 
@@ -715,7 +780,7 @@
         const workbook = XLSX.read(data, { type: 'array' });
 
         const normalizar = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-        const palavraChave = config.nomeAba.replace("Base ", "").toUpperCase();
+        const palavraChave = config.nomeAba.toUpperCase();
 
         let nomeAbaEncontrada = workbook.SheetNames.find(nome =>
           normalizar(nome).includes(palavraChave)
@@ -749,8 +814,9 @@
         }
 
         payloads[chave] = {
-          aba: config.nomeAba,
-          dados: dadosFiltrados
+          aba: config.destino,
+          dados: dadosFiltrados,
+          linhaInicio: config.linhaDestino
         };
 
         exibirTabela(dadosFiltrados, config);
@@ -847,7 +913,7 @@
 
     setStatusGeral('📤 Enviando todos os programas...', 'sending');
 
-    const chaves = ['pnae', 'faed', 'manut'];
+    const chaves = ['cartao', 'prestacao', 'sistema'];
     let concluidos = 0;
     let sucessos = 0;
 
@@ -882,17 +948,7 @@
     if (!confirm('Tem certeza que deseja limpar todos os dados carregados?')) return;
 
     Object.keys(CONFIGURACOES).forEach(chave => {
-      const config = CONFIGURACOES[chave];
-      const elementos = config.elementos;
-
-      payloads[chave] = null;
-      statusEnvio[chave] = false;
-
-      document.getElementById(elementos.fileName).innerText = 'Nenhum arquivo';
-      document.getElementById(elementos.fileInput).value = '';
-      limparTabela(config);
-      setStatusCard(elementos.status, 'Aguardando arquivo...', 'info');
-      document.getElementById(elementos.btnEnviar).disabled = true;
+      limparIndividual(chave);
     });
 
     document.getElementById('btnEnviarTodos').disabled = true;
@@ -918,6 +974,10 @@
     document.getElementById(elementos.btnEnviar).addEventListener('click', function() {
       enviarDados(chave, config);
     });
+
+    document.getElementById(elementos.btnLimpar).addEventListener('click', function() {
+      limparIndividual(chave);
+    });
   });
 
   document.getElementById('btnEnviarTodos').addEventListener('click', enviarTodos);
@@ -925,9 +985,9 @@
 
   console.log('🚀 Sistema Múltiplo carregado!');
   console.log('📌 Configurações:');
-  console.log('  - PNAE: Linha 6, colunas B-K (10 colunas)');
-  console.log('  - FAED: Linha 6, colunas B-K (10 colunas)');
-  console.log('  - Manutenção: Linha 8, colunas B-L (11 colunas)');
+  console.log('  - Cartão Manutenção: Linha 8, colunas B-R (17 colunas) → base_cartao_manutencao (A3)');
+  console.log('  - Prestação de Contas: Linha 3, colunas B-J (9 colunas) → Prestacao_Contas (A3)');
+  console.log('  - Sistema Escolar: Linha 3, colunas A-H (8 colunas) → Sistema_Escolar (A3)');
 </script>
 
 </body>
